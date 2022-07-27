@@ -68,3 +68,38 @@ func (h *userHandler) Login(c *gin.Context){
 
 	c.JSON(http.StatusOK,respone)
 }
+
+func (h *userHandler) CheckEmailAvability(c *gin.Context)  {
+	var input user.CheckEmailInput
+
+	err := c.ShouldBindJSON(&input)
+	
+	if err != nil{
+		errors := helper.FormatterValidationError(err)
+		errorMassage := gin.H{"errors":errors}
+		respone := helper.ApiRespone("Email checking failed", http.StatusUnprocessableEntity, "error", errorMassage)
+		c.JSON(http.StatusUnprocessableEntity, respone)
+		return
+	}
+
+	isEmailAvailable, err := h.userService.IsEmailAvailable(input)
+	
+	if err != nil {
+		errorMassage := gin.H{"errors":"Server Error"}
+		respone := helper.ApiRespone("Login failed", http.StatusUnprocessableEntity, "error", errorMassage)
+		c.JSON(http.StatusUnprocessableEntity, respone)
+		return
+	} 
+
+	data := gin.H{
+		"is_available" : isEmailAvailable,
+	}
+	metaMessage := "Email has been registered"
+
+	if isEmailAvailable{
+		metaMessage = "Email is Availabe"
+	}
+	respone := helper.ApiRespone(metaMessage, http.StatusOK, "success", data)
+
+	c.JSON(http.StatusOK,respone)
+}

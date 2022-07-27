@@ -28,6 +28,7 @@ func main() {
 
 	api.POST("/users",userHendler.RegisterUser)
 	api.POST("/sessions",userHendler.Login)
+	api.POST("/email_checker",userHendler.CheckEmailAvability)
 
 
 	router.Run()
