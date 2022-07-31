@@ -1,6 +1,7 @@
 package hendler
 
 import (
+	"bwastartup/auth"
 	"bwastartup/helper"
 	"bwastartup/user"
 	"fmt"
@@ -11,10 +12,11 @@ import (
 
 type userHandler struct {
 	userService user.Service
+	authService auth.Service
 }
 
-func NewUserHandler(userService user.Service) *userHandler {
-	return &userHandler{userService}
+func NewUserHandler(userService user.Service, authService auth.Service) *userHandler {
+	return &userHandler{userService, authService}
 }
 
 func (h *userHandler) RegisterUser(c *gin.Context){
@@ -38,7 +40,14 @@ func (h *userHandler) RegisterUser(c *gin.Context){
 		c.JSON(http.StatusBadRequest, respone)
 		return
 	}
-	formatter := user.FormatUser(newUser, "token")
+
+	token ,err := h.authService.GenerateToken(newUser.Id)
+	if err != nil{
+		respone := helper.ApiRespone("register account failed", http.StatusUnprocessableEntity, "error", nil)
+		c.JSON(http.StatusBadRequest, respone)
+		return
+	}
+	formatter := user.FormatUser(newUser, token)
 	respone := helper.ApiRespone("Account has been regitered", http.StatusOK, "success", formatter)
 
 	c.JSON(http.StatusOK,respone)
@@ -63,8 +72,13 @@ func (h *userHandler) Login(c *gin.Context){
 		c.JSON(http.StatusUnprocessableEntity, respone)
 		return
 	} 
-
-	formatter := user.FormatUser(loggedinUser, "token")
+	token ,err := h.authService.GenerateToken(loggedinUser.Id)
+	if err != nil{
+		respone := helper.ApiRespone("Login failed", http.StatusUnprocessableEntity, "error", nil)
+		c.JSON(http.StatusBadRequest, respone)
+		return
+	}
+	formatter := user.FormatUser(loggedinUser, token)
 	respone := helper.ApiRespone("loggedin successfully", http.StatusOK, "success", formatter)
 
 	c.JSON(http.StatusOK,respone)

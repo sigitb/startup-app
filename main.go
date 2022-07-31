@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bwastartup/auth"
 	"bwastartup/hendler"
 	"bwastartup/user"
 	"log"
@@ -20,10 +21,10 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	userService := user.NewService(userRepository)
-	
-	userService.SaveAvatar(4, "images/1-profile.png")
+	authService := auth.NewService()
 
-	userHendler := hendler.NewUserHandler(userService)
+
+	userHendler := hendler.NewUserHandler(userService, authService)
 
 	router := gin.Default()
 	api := router.Group("/api/v1")
