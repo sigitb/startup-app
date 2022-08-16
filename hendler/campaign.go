@@ -25,6 +25,27 @@ func (h *campaignHendler) GetCampaigns(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, respone)
 	}  
 
-	respone := helper.ApiRespone("List of campaigns", http.StatusOK, "success", campaigns)
+	respone := helper.ApiRespone("List of campaigns", http.StatusOK, "success", campaign.FormatCampaigns(campaigns))
 	c.JSON(http.StatusOK,respone)
+}
+
+func (h *campaignHendler) GetCampaign(c *gin.Context) {
+	var input campaign.GetCampaignDetailInput
+	err := c.ShouldBindUri(&input)
+
+	if err != nil {
+		respone := helper.ApiRespone("Failed to get detail of campaign", http.StatusBadRequest,"error", nil)
+		c.JSON(http.StatusBadRequest, respone)
+		return
+	}
+
+	campaigns, err := h.service.GetCampaignById(input)
+	if err != nil {
+		respone := helper.ApiRespone("Failed to get detail of campaign", http.StatusBadRequest,"error", nil)
+		c.JSON(http.StatusBadRequest, respone)
+		return
+	}
+
+	respone := helper.ApiRespone("Detail Campaign",http.StatusOK, "success", campaign.FormatDetailCampaign(campaigns))
+	c.JSON(http.StatusOK, respone)
 }

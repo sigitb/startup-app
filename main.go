@@ -35,6 +35,7 @@ func main() {
 	campaignHendler := hendler.NewCampaignHendler(campaignService)
 
 	router := gin.Default()
+	router.Static("/images", "./images")
 	api := router.Group("/api/v1")
 
 	api.POST("/users",userHendler.RegisterUser)
@@ -43,6 +44,7 @@ func main() {
 	api.POST("/avatar",authMiddleware(authService,userService),userHendler.UploadAvatar)
 
 	api.GET("/campaigns", campaignHendler.GetCampaigns)
+	api.GET("/campaigns/:id", campaignHendler.GetCampaign)
 
 
 
