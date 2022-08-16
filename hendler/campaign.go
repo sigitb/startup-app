@@ -45,6 +45,11 @@ func (h *campaignHendler) GetCampaign(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, respone)
 		return
 	}
+	if campaigns.Id == 0{
+		respone := helper.ApiRespone("Detail of campaign not found", http.StatusNotFound,"error", nil)
+		c.JSON(http.StatusBadRequest, respone)
+		return
+	}
 
 	respone := helper.ApiRespone("Detail Campaign",http.StatusOK, "success", campaign.FormatDetailCampaign(campaigns))
 	c.JSON(http.StatusOK, respone)
