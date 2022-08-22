@@ -1,6 +1,11 @@
 package helper
 
-import "github.com/go-playground/validator/v10"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
+)
 
 type Response struct {
 	Meta Meta        `json:"meta"`
@@ -30,11 +35,24 @@ func ApiRespone(message string, code int, status string, data interface{}) Respo
 
 func FormatterValidationError(err error) []string {
 	var errors []string
+		errs := err.(validator.ValidationErrors)
+		for _, e := range errs {
+			errors = append(errors, e.Error())
+		}
+		return errors
 
-	for _, e := range err.(validator.ValidationErrors) {
-		errors = append(errors, e.Error())
-	}
+}
 
-	return errors
-
+func FAILED(c *gin.Context, message string) {
+	
+	c.JSON(http.StatusBadRequest, struct {
+		Status  bool        `json:"status"`
+		Message string      `json:"message"`
+		Data    interface{} `json:"data"`
+	}{
+		Status:  false,
+		Message: message,
+		Data:    nil,
+	})
+	return
 }

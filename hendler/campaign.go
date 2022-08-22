@@ -3,6 +3,7 @@ package hendler
 import (
 	"bwastartup/campaign"
 	"bwastartup/helper"
+	"bwastartup/user"
 	"net/http"
 	"strconv"
 
@@ -52,5 +53,47 @@ func (h *campaignHendler) GetCampaign(c *gin.Context) {
 	}
 
 	respone := helper.ApiRespone("Detail Campaign",http.StatusOK, "success", campaign.FormatDetailCampaign(campaigns))
+	c.JSON(http.StatusOK, respone)
+}
+
+func (h *campaignHendler) CreateCampaign(c *gin.Context) {
+	var input campaign.CreateCampaignInput
+
+	err := c.ShouldBindJSON(&input)
+	if err != nil{
+		errors := helper.FormatterValidationError(err)
+		errorMassage := gin.H{"errors":errors}
+
+		respone := helper.ApiRespone("Create Campaign failed", http.StatusUnprocessableEntity, "error", errorMassage)
+		c.JSON(http.StatusBadRequest, respone)
+		return
+	}
+
+	// validation validate in input 
+
+	// validate := input.CreateCampaign()
+	
+	// if validate != nil {
+	// 	 validator := make(map[string]interface{})
+	// 		for _, v := range validate {
+	// 			validator[v.Key] = v.Message
+	// 		}
+	// 	respone := helper.ApiRespone("Create Campaign failed", http.StatusBadRequest, "error", validator)
+	// 	c.JSON(http.StatusBadRequest, respone)
+	// 	return
+	// }
+
+	currentUser := c.MustGet("currentUser").(user.User)
+
+	input.User = currentUser
+
+	newCampaign, err := h.service.CreateCampaign(input)
+	if err != nil{
+		respone := helper.ApiRespone("Create Campaign failed", http.StatusUnprocessableEntity, "error", nil)
+		c.JSON(http.StatusBadRequest, respone)
+		return
+	}
+
+	respone := helper.ApiRespone("Create Campaign successfuly", http.StatusOK, "success", campaign.FormatCampaign(newCampaign))
 	c.JSON(http.StatusOK, respone)
 }
