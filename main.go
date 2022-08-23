@@ -46,6 +46,7 @@ func main() {
 	api.GET("/campaigns", campaignHendler.GetCampaigns)
 	api.GET("/campaigns/:id", campaignHendler.GetCampaign)
 	api.POST("/campaigns", authMiddleware(authService,userService),campaignHendler.CreateCampaign)
+	api.PUT("/campaigns/:id", authMiddleware(authService,userService),campaignHendler.UpdateCampaign)
 
 
 
