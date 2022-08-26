@@ -5,6 +5,7 @@ import (
 	"bwastartup/campaign"
 	"bwastartup/helper"
 	"bwastartup/hendler"
+	"bwastartup/transaction"
 	"bwastartup/user"
 	"log"
 	"net/http"
@@ -26,13 +27,16 @@ func main() {
 
 	userRepository := user.NewRepository(db)
 	campaignRespository := campaign.NewRepository(db)
+	transactionRespository := transaction.NewRepository(db)
 
 	campaignService := campaign.NewService(campaignRespository)
 	userService := user.NewService(userRepository)
 	authService := auth.NewService()
+	transactionService := transaction.NewService(transactionRespository, campaignRespository)
 
 	userHendler := hendler.NewUserHandler(userService, authService)
 	campaignHendler := hendler.NewCampaignHendler(campaignService)
+	transactionHendler := hendler.NewTransactionHendler(transactionService)
 
 	router := gin.Default()
 	router.Static("/images", "./images")
@@ -42,14 +46,16 @@ func main() {
 	api.POST("/sessions",userHendler.Login)
 	api.POST("/email_checker",userHendler.CheckEmailAvability)
 	api.POST("/avatar",authMiddleware(authService,userService),userHendler.UploadAvatar)
-
+	
+	// campaign
 	api.GET("/campaigns", campaignHendler.GetCampaigns)
 	api.GET("/campaigns/:id", campaignHendler.GetCampaign)
 	api.POST("/campaigns", authMiddleware(authService,userService),campaignHendler.CreateCampaign)
 	api.PUT("/campaigns/:id", authMiddleware(authService,userService),campaignHendler.UpdateCampaign)
 	api.POST("/campaign-image", authMiddleware(authService,userService),campaignHendler.CreateCampaignImage)
 
-
+	// transaction
+	api.GET("/campaign/:id/transaction", authMiddleware(authService,userService), transactionHendler.GetCampaignTransaction)
 
 	router.Run()
 }
