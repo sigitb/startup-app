@@ -14,7 +14,7 @@ type Response struct {
 
 type Meta struct {
 	Message string `json:"message"`
-	Code    int    `json:"code`
+	Code    int    `json:"code"`
 	Status  string `json:"status"`
 }
 

@@ -60,29 +60,29 @@ func (h *campaignHendler) GetCampaign(c *gin.Context) {
 func (h *campaignHendler) CreateCampaign(c *gin.Context) {
 	var input campaign.CreateCampaignInput
 
-	err := c.ShouldBindJSON(&input)
-	if err != nil{
-		errors := helper.FormatterValidationError(err)
-		errorMassage := gin.H{"errors":errors}
+	// err := c.ShouldBindJSON(&input)
+	// if err != nil{
+	// 	errors := helper.FormatterValidationError(err)
+	// 	errorMassage := gin.H{"errors":errors}
 
-		respone := helper.ApiRespone("Create Campaign failed", http.StatusUnprocessableEntity, "error", errorMassage)
-		c.JSON(http.StatusBadRequest, respone)
-		return
-	}
-
-	// validation validate in input 
-
-	// validate := input.CreateCampaign()
-	
-	// if validate != nil {
-	// 	 validator := make(map[string]interface{})
-	// 		for _, v := range validate {
-	// 			validator[v.Key] = v.Message
-	// 		}
-	// 	respone := helper.ApiRespone("Create Campaign failed", http.StatusBadRequest, "error", validator)
+	// 	respone := helper.ApiRespone("Create Campaign failed", http.StatusUnprocessableEntity, "error", errorMassage)
 	// 	c.JSON(http.StatusBadRequest, respone)
 	// 	return
 	// }
+
+	// validation validate in input 
+
+	validate := input.CreateCampaign()
+	
+	if validate != nil {
+		 validator := make(map[string]interface{})
+			for _, v := range validate {
+				validator[v.Key] = v.Message
+			}
+		respone := helper.ApiRespone("Create Campaign failed", http.StatusBadRequest, "error", validator)
+		c.JSON(http.StatusBadRequest, respone)
+		return
+	}
 
 	currentUser := c.MustGet("currentUser").(user.User)
 
