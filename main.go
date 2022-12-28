@@ -50,7 +50,7 @@ func main() {
 	api.POST("/sessions",userHendler.Login)
 	api.POST("/email_checker",userHendler.CheckEmailAvability)
 	api.POST("/avatar",authMiddleware(authService,userService),userHendler.UploadAvatar)
-	
+	api.GET("/user/fetch",authMiddleware(authService,userService), userHendler.FetchUser)
 	// campaign
 	api.GET("/campaigns", campaignHendler.GetCampaigns)
 	api.GET("/campaigns/:id", campaignHendler.GetCampaign)
